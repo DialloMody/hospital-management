@@ -3,8 +3,14 @@ package com.hospitalmanagement.controller;
 import com.hospitalmanagement.model.Role;
 import com.hospitalmanagement.model.User;
 import com.hospitalmanagement.repository.UserRepository;
+import com.hospitalmanagement.security.dto.AuthResponse;
+import com.hospitalmanagement.security.dto.LoginRequest;
+import com.hospitalmanagement.security.dto.RegisterRequest;
 import com.hospitalmanagement.security.jwt.JwtUtil;
+import com.hospitalmanagement.service.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,38 +24,20 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController
 {
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final AuthService authService;
 
     @PostMapping("/register")
-    public String registerUser(@RequestBody Map<String, String> request)
+    public ResponseEntity<AuthResponse> register( @RequestBody RegisterRequest request )
     {
-        User user = User.builder()
-                .username(request.get("username"))
-                .email(request.get("email"))
-                .password(passwordEncoder.encode(request.get("password")))
-                .roles(Set.of(Role.ADMIN))
-                .build();
-
-        userRepository.save(user);
-        return "User registered successfully";
+        return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> request)
+    public ResponseEntity<AuthResponse> login( @RequestBody LoginRequest loginRequest)
     {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.get("username"), request.get("password")));
-        String token = jwtUtil.generateToken(request.get("username"));
-
-        return Map.of("token", token);
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 }
