@@ -5,5 +5,6 @@ public enum Role {
     MEDECIN,
     INFIRMIER,
     PHARMACIEN,
-    SECRETAIRE
+    SECRETAIRE,
+    PATIENT
 }

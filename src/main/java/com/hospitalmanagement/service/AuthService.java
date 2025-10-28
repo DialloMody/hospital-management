@@ -12,17 +12,26 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service gérant l'authentification et l'enregistrement des utilisateurs.
+ *
+ * Coordonne les interactions entre la base de données, la gestion des mots de passe,
+ * le système d’authentification Spring Security et la génération de JWT.
+ */
 @Service
 @RequiredArgsConstructor
-public class AuthService
-{
+public class AuthService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthResponse register(RegisterRequest request)
-    {
+    /**
+     * Enregistre un nouvel utilisateur, chiffre son mot de passe,
+     * sauvegarde ses données et génère un token JWT.
+     */
+    public AuthResponse register(RegisterRequest request) {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
@@ -36,8 +45,11 @@ public class AuthService
         return new AuthResponse(token);
     }
 
-    public  AuthResponse login(LoginRequest request)
-    {
+    /**
+     * Authentifie un utilisateur via son email et mot de passe,
+     * puis renvoie un token JWT si la connexion est valide.
+     */
+    public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
